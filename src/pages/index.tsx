@@ -4,6 +4,29 @@ import Head from "next/head";
 
 import { api } from "~/utils/api";
 
+const CreatePostWizard = () => {
+  const { user } = useUser();
+  console.log(user);
+  if (!user) return null;
+
+  return (
+    <div className="flex w-full gap-4">
+      <img
+        src={user.profileImageUrl}
+        alt="Profile Image"
+        className="h-16 w-16 rounded-full"
+      />
+      <input
+        placeholder="What's on your mind?"
+        className="ml-4 grow border-none bg-transparent outline-none"
+      />
+      <div>
+        <SignOutButton />
+      </div>
+    </div>
+  );
+};
+
 const Home: NextPage = () => {
   const user = useUser();
 
@@ -27,7 +50,7 @@ const Home: NextPage = () => {
                 <SignInButton />
               </div>
             )}
-            {!!user.isSignedIn && <SignOutButton />}
+            {!!user.isSignedIn && <CreatePostWizard />}
           </div>
           <div className="flex flex-col">
             {data?.map((post) => (
