@@ -1,8 +1,31 @@
+/* eslint-disable @next/next/no-img-element */
 import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 
-import { api } from "~/utils/api";
+import { type RouterOutputs, api } from "~/utils/api";
+
+type PostWithUser = RouterOutputs["posts"]["getAll"][number];
+
+const PostView = (props: PostWithUser) => {
+  const { post, author } = props;
+  return (
+    <div key={post.id} className="flex gap-3 border-b border-slate-400 p-4">
+      <img
+        src={author.profileImageUrl}
+        alt="Profile Image"
+        className="h-16 w-16 rounded-full"
+      />
+      <div className="flex flex-col">
+        <div className="flex text-slate-300">
+          <span className="pr-5">{`@${author.username}`}</span> ·{" "}
+          <span>1h</span>
+        </div>
+        <span>{post.content}</span>
+      </div>
+    </div>
+  );
+};
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -53,10 +76,8 @@ const Home: NextPage = () => {
             {!!user.isSignedIn && <CreatePostWizard />}
           </div>
           <div className="flex flex-col">
-            {data?.map((post) => (
-              <div key={post.id} className="border-b border-slate-400 p-8">
-                {post.content}
-              </div>
+            {[...data, ...data]?.map((fullPost) => (
+              <PostView {...fullPost} key={fullPost.post.id} />
             ))}
           </div>
         </div>
