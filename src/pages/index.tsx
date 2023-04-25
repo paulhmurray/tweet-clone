@@ -9,8 +9,9 @@ dayjs.extend(relativeTime);
 import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
 import Image from "next/image";
-import { LoadingPage } from "~/components/Loading";
+import { LoadingPage, LoadingSpinner } from "~/components/Loading";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 type PostWithUser = RouterOutputs["posts"]["getAll"][number];
 
@@ -45,6 +46,14 @@ const CreatePostWizard = () => {
       setInput("");
       void ctx.posts.getAll.invalidate();
     },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("Failed to Post, please try again later");
+      }
+    },
   });
   const [input, setInput] = useState("");
 
@@ -69,10 +78,20 @@ const CreatePostWizard = () => {
         onChange={(e) => setInput(e.target.value)}
         disabled={isPosting}
       />
-      <div>
-        <button onClick={() => mutate({ content: input })}>Post</button>
-        <SignOutButton />
-      </div>
+      {input !== "" && !isPosting && (
+        <button
+          className="m-2 flex items-center justify-center rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600"
+          onClick={() => mutate({ content: input })}
+        >
+          Post
+        </button>
+      )}
+      {isPosting && (
+        <div className="flex items-center justify-center">
+          <LoadingSpinner size={20} />
+        </div>
+      )}
+      <SignOutButton />
     </div>
   );
 };

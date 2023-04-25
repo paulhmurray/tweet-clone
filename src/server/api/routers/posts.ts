@@ -39,18 +39,12 @@ export const postsRouter = createTRPCRouter({
       take: 100,
       orderBy: [{ createdAt: "desc" }],
     });
-    console.log(
-      "Post IDs:",
-      posts.map((post) => post.authorId)
-    );
     const users = (
       await clerkClient.users.getUserList({
         userId: posts.map((post) => post.authorId),
         limit: 100,
       })
     ).map(filterUserForClient);
-
-    console.log("Filtered Users:", users);
 
     return posts.map((post) => {
       const author = users.find((user) => user.id === post.authorId);
@@ -73,7 +67,10 @@ export const postsRouter = createTRPCRouter({
   create: privateProcedure
     .input(
       z.object({
-        content: z.string().min(1).max(280),
+        content: z
+          .string()
+          .min(1)
+          .max(280, "Your post must be less than 280 characters."),
       })
     )
     .mutation(async ({ ctx, input }) => {
